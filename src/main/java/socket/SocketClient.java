@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 import parser.MessageParseur;
 
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -38,29 +39,50 @@ public class SocketClient {
 
     public SocketClient(String ip, int port) throws IOException {
         // création de la socket
-        this.connexion = new Socket(ip, port);
-        this.entree = new BufferedReader(new InputStreamReader(this.connexion.getInputStream()));
-        this.sortie = new PrintWriter(this.connexion.getOutputStream(), true);
-        this.sortie.println("JOUEUR 1");
+        connexion = new Socket(ip, port);
 
-        while (!this.entree.ready()) ;
-        this.clientId = Integer.parseInt(this.entree.readLine());
+        // Gestion des flux d'entrées et sorties
+        entree = new BufferedReader(new InputStreamReader(connexion.getInputStream()));
+        sortie = new PrintWriter(connexion.getOutputStream(), true);
         this.messageParseur = new MessageParseur();
+
+        init();
+    }
+
+    /*
+     * Lors de la connexion pour la première fois, le serveur s'attend à recevoir le nom de l'équipe et renvoie
+     * ensuite l'id du client
+     */
+    private void init() throws IOException {
+        send("Joueur 1");
+        String idString = recv();
+        clientId = Integer.parseInt(idString);
+        System.out.println("Id reçu : " + clientId);
+    }
+
+    private String recv() throws IOException {
+        while (!entree.ready()) ; // Attends qu'un message arrive
+        return entree.readLine();
+    }
+
+    private void send(String s) {
+        sortie.println(s);
     }
 
     public void run() throws IOException {
         while (true) {
-            if (this.entree.ready()) {
-                String message = this.entree.readLine();
-                if (message == null) {
-                    break;
-                }
-                this.messageParseur.decode(message);
-                String encodedReturnMessage = this.messageParseur.encode();
-                this.sortie.println(encodedReturnMessage);
+            String message = recv();
+            if (message == null) {
+                break;
             }
+
+            System.out.println("Lu : " + message);
+
+            this.messageParseur.decode(message);
+            this.send(this.messageParseur.encode());
+
         }
     }
-
-
 }
+
+
