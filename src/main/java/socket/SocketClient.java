@@ -2,8 +2,9 @@ package socket;
 
 import lombok.Getter;
 import lombok.Setter;
+import models.Commande;
 import parser.MessageParseur;
-
+import utils.ParcoursLargeur;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -23,8 +24,6 @@ public class SocketClient {
 
     private Socket connexion;
 
-    private MessageParseur messageParseur;
-
     /**
      * Champ avec lequel on va obtenir les messages du serveur
      */
@@ -35,16 +34,18 @@ public class SocketClient {
      */
     private PrintWriter sortie;
 
-    private int clientId;
+    public static int clientId;
 
-    public SocketClient(String ip, int port) throws IOException {
+    private Commande commande;
+
+    public SocketClient(String ip, int port) throws Exception {
         // création de la socket
         connexion = new Socket(ip, port);
 
         // Gestion des flux d'entrées et sorties
         entree = new BufferedReader(new InputStreamReader(connexion.getInputStream()));
         sortie = new PrintWriter(connexion.getOutputStream(), true);
-        this.messageParseur = new MessageParseur();
+        Commande.setSocket(this);
 
         init();
     }
@@ -53,36 +54,32 @@ public class SocketClient {
      * Lors de la connexion pour la première fois, le serveur s'attend à recevoir le nom de l'équipe et renvoie
      * ensuite l'id du client
      */
-    private void init() throws IOException {
-        send("Joueur 1");
-        String idString = recv();
-        clientId = Integer.parseInt(idString);
-        System.out.println("Id reçu : " + clientId);
+    private void init() throws Exception {
+        Commande.recvCommand("NAME");
     }
 
-    private String recv() throws IOException {
+    public String recv() throws IOException {
         while (!entree.ready()) ; // Attends qu'un message arrive
         return entree.readLine();
     }
 
-    private void send(String s) {
+    public void send(String s) {
+        System.out.println("[SENDING] " + s);
         sortie.println(s);
     }
 
-    public void run() throws IOException {
+    public void run() throws Exception {
+        MessageParseur mp = new MessageParseur();
+        String id = Commande.recvCommand("START").split("\\|")[1];
+        clientId = Integer.parseInt(id);
+
         while (true) {
-            String message = recv();
-            if (message == null) {
-                break;
-            }
-
-            System.out.println("Lu : " + message);
-
-            this.messageParseur.decode(message);
-            this.send(this.messageParseur.encode());
-
+            mp.setMap(Commande.sendCommand("GETMAP"));
+            mp.setBikers(Commande.sendCommand("GETBIKERS|" + clientId));
+            mp.setCommandes(Commande.sendCommand("GETDELIVERIES"));
+            mp.launchIA();
+            id = Commande.recvCommand("START").split("\\|")[1];
+            clientId = Integer.parseInt(id);
         }
     }
 }
-
-
