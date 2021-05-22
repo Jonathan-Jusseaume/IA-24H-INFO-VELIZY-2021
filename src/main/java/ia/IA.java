@@ -52,7 +52,7 @@ public class IA {
 
             ArrayList<CommandeLivraison> commande = coursiers[i].getCoffre();
             for (int j = 0; j < commande.size(); j++) {
-                if(commande.get(j).isLivre()){
+                if (commande.get(j).isLivre()) {
                     commande.remove(j);
                 }
             }
@@ -67,15 +67,19 @@ public class IA {
 
     public void applyDescision() {
         while (pa > 0) {
-            ArrayList<String[]> cheminASuivre = new ArrayList<>();
+            String[] cheminASuivre;
             String[] obstacles = new String[0];
 
             for (int i = 0; i < coursiers.length; i++) {            //Pour chaque coursier
+                if (getOtherCoursier(coursiers[i].getId()).getCoffre().size() > 0) {
+                    continue;
+                }
+
                 String[] objectifs = new String[1];
 
                 if (coursiers[i].isChercherCommande()) {
                     objectifs = new String[]{"RA"};
-                    obstacles = new String[]{"E", "H", "S", "L"+coursiers[0].getId(), "L"+coursiers[0].getId()};
+                    obstacles = new String[]{"E", "H", "S", "L" + coursiers[0].getId(), "L" + coursiers[0].getId()};
                 } else if (coursiers[i].isLivrerCommande()) {
                     objectifs = new String[]{"L" + coursiers[i].getId()};
                     obstacles = new String[]{"E", "H", "S", "RA"};
@@ -84,11 +88,9 @@ public class IA {
                 ParcoursLargeur.setObjectifs(objectifs);
                 ParcoursLargeur.setObstacles(obstacles);
 
-                cheminASuivre.add(i, ParcoursLargeur.parcoursLargeur(map, coursiers[i].getPosition().x, coursiers[i].getPosition().y, this, coursiers[i].getId()));
+                cheminASuivre = ParcoursLargeur.parcoursLargeur(map, coursiers[i].getPosition().x, coursiers[i].getPosition().y, this, coursiers[i].getId());
 
-                System.out.println(cheminASuivre.get(i).length);
-
-                if (cheminASuivre.get(i).length <= 1) {
+                if (cheminASuivre.length <= 1) {
                     if (coursiers[i].isChercherCommande()) {
                         checkPickUpRestaurant(cheminASuivre, i);
                     } else if (coursiers[i].isLivrerCommande()) {
@@ -107,11 +109,10 @@ public class IA {
         }
     }
 
-    private void deplaceLivreur(ArrayList<String[]> cheminASuivre, int i) {
+    private void deplaceLivreur(String[] cheminASuivre, int i) {
         Biker coursier = coursiers[i];
-        String[] chemin = cheminASuivre.get(i);
 
-        String deplacement = "MOVE|" + coursier.getId() + "|" + chemin[0];
+        String deplacement = "MOVE|" + coursier.getId() + "|" + cheminASuivre[0];
 
         try {
             Commande.sendCommand(deplacement);
@@ -129,16 +130,16 @@ public class IA {
         pa--;
     }
 
-    private void checkDeliverOrder(ArrayList<String[]> cheminASuivre, int i) {
-        if (cheminASuivre.get(i).length == 1) {
-            Point mouv = ParcoursLargeur.getMouvement(cheminASuivre.get(i)[0]);
+    private void checkDeliverOrder(String[] cheminASuivre, int i) {
+        if (cheminASuivre.length == 1) {
+            Point mouv = ParcoursLargeur.getMouvement(cheminASuivre[0]);
             Point biker = coursiers[i].getPosition();
             CommandeLivraison commande = null;
 
             commande = getCommandeByMaisonPosition(new Point(biker.x - mouv.x, biker.y - mouv.y), coursiers[i], true);
             Point client = commande.getMaison();
 
-            if (getCommandeByMaisonPosition(new Point(biker.x - mouv.x, biker.y - mouv.y), coursiers[i],false) == null) {
+            if (getCommandeByMaisonPosition(new Point(biker.x - mouv.x, biker.y - mouv.y), coursiers[i], false) == null) {
                 map[client.y][client.x] = "E";
             }
 
@@ -152,9 +153,9 @@ public class IA {
         }
     }
 
-    private void checkPickUpRestaurant(ArrayList<String[]> cheminASuivre, int i) {
-        if (cheminASuivre.get(i).length == 1) {
-            Point mouv = ParcoursLargeur.getMouvement(cheminASuivre.get(i)[0]);
+    private void checkPickUpRestaurant(String[] cheminASuivre, int i) {
+        if (cheminASuivre.length == 1) {
+            Point mouv = ParcoursLargeur.getMouvement(cheminASuivre[0]);
             Point biker = coursiers[i].getPosition();
             CommandeLivraison commande = null;
 
@@ -249,20 +250,18 @@ public class IA {
         return coursiers;
     }
 
-    public Biker getOtherCoursier(int id){
-        if(coursiers[0].getId() == id){
+    public Biker getOtherCoursier(int id) {
+        if (coursiers[0].getId() == id) {
             return coursiers[1];
-        }
-        else{
+        } else {
             return coursiers[0];
         }
     }
 
-    public Biker getCoursierById(int id){
-        if(coursiers[0].getId() == id){
+    public Biker getCoursierById(int id) {
+        if (coursiers[0].getId() == id) {
             return coursiers[0];
-        }
-        else{
+        } else {
             return coursiers[1];
         }
     }
