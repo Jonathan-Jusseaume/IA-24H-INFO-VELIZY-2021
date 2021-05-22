@@ -11,6 +11,7 @@ import utils.ParcoursLargeur;
 
 import java.awt.*;
 import java.util.ArrayList;
+import java.util.stream.Collectors;
 
 /**
  * Classe qui va prendre les différentes décisions pour les renvoyer
@@ -48,6 +49,15 @@ public class IA {
                 coursiers[i].setLivrerCommande(false);
                 coursiers[i].setChercherCommande(true);
             }
+
+            ArrayList<CommandeLivraison> commande = coursiers[i].getCoffre();
+            for (int j = 0; j < commande.size(); j++) {
+                if(commande.get(j).isLivre()){
+                    commande.remove(j);
+                }
+            }
+
+            coursiers[i].setCoffre(commande);
         }
 
         applyDescision();
@@ -58,17 +68,21 @@ public class IA {
     public void applyDescision() {
         while (pa > 0) {
             ArrayList<String[]> cheminASuivre = new ArrayList<>();
+            String[] obstacles = new String[0];
 
             for (int i = 0; i < coursiers.length; i++) {            //Pour chaque coursier
                 String[] objectifs = new String[1];
 
                 if (coursiers[i].isChercherCommande()) {
-                    objectifs[0] = "RA";
+                    objectifs = new String[]{"RA"};
+                    obstacles = new String[]{"E", "H", "S", "L"+coursiers[0].getId(), "L"+coursiers[0].getId()};
                 } else if (coursiers[i].isLivrerCommande()) {
-                    objectifs[0] = "L"+coursiers[i].getId();
+                    objectifs = new String[]{"L" + coursiers[i].getId()};
+                    obstacles = new String[]{"E", "H", "S", "RA"};
                 }
 
                 ParcoursLargeur.setObjectifs(objectifs);
+                ParcoursLargeur.setObstacles(obstacles);
 
                 cheminASuivre.add(i, ParcoursLargeur.parcoursLargeur(map, coursiers[i].getPosition().x, coursiers[i].getPosition().y));
 
