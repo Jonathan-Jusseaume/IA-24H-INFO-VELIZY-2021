@@ -1,7 +1,9 @@
 package utils;
 
+import ia.IA;
 import lombok.Getter;
 import lombok.Setter;
+import models.Biker;
 
 import java.awt.*;
 import java.lang.reflect.Array;
@@ -20,6 +22,8 @@ public class ParcoursLargeur {
 
     //Autoriser les déplacements en diagonale ?
     private static boolean diagonale = false;
+
+    private static int distMin;
 
     /**
      * @param map carte
@@ -50,7 +54,7 @@ public class ParcoursLargeur {
      * <p>
      * chemin = ParcoursLargeur.parcoursLargeur(map, 0, 0);
      */
-    public static String[] parcoursLargeur(String[][] map, int x, int y) {
+    public static String[] parcoursLargeur(String[][] map, int x, int y, IA ia, int idLivreur) {
         String[] ret;
         Point[][] precedent = new Point[map.length][map[0].length];
         int[][] distance = new int[map.length][map[0].length];
@@ -86,15 +90,10 @@ public class ParcoursLargeur {
         }
 
         Point[] cordObjectifs = getAllObectifs(map);
-        int distMin = 1000;
-        Point objectifProche = racine;
 
-        for (int i = 0; i < cordObjectifs.length && cordObjectifs[i] != null; i++) {
-            if (distance[cordObjectifs[i].y][cordObjectifs[i].x] < distMin) {
-                distMin = distance[cordObjectifs[i].y][cordObjectifs[i].x];
-                objectifProche = cordObjectifs[i];
-            }
-        }
+        distMin = 1000;
+
+        Point objectifProche = selectObjectif(cordObjectifs, distance, racine, ia, idLivreur);
 
         if (distMin == 1000) {
             distMin = 0;
@@ -106,13 +105,32 @@ public class ParcoursLargeur {
 
         while (objectifProche != racine) {
             prec = precedent[objectifProche.y][objectifProche.x];
-            //map[prec.y][prec.x] = "O";
             ret[cpt] = getDirection(prec.x - objectifProche.x, prec.y - objectifProche.y);
             cpt--;
             objectifProche = prec;
         }
 
         return ret;
+    }
+
+    private static Point selectObjectif(Point[] cordObjectifs, int[][] distance, Point racine, IA ia, int idLivreur) {
+        Point objectifProche = racine;
+        Biker autreCoursier = ia.getOtherCoursier(idLivreur);
+
+        for (int i = 0; i < cordObjectifs.length && cordObjectifs[i] != null; i++) {
+            if (distance[cordObjectifs[i].y][cordObjectifs[i].x] < distMin
+                    && !autreCoursier.listePoint.contains(cordObjectifs[i])) {
+
+                distMin = distance[cordObjectifs[i].y][cordObjectifs[i].x];
+                objectifProche = cordObjectifs[i];
+            }
+        }
+
+        if(ia.getCoursierById(idLivreur).isChercherCommande()) {
+            ia.getCoursierById(idLivreur).listePoint.add(objectifProche);
+        }
+
+        return objectifProche;
     }
 
     private static Point[] getAllVoisins(String[][] map, Point courant) {

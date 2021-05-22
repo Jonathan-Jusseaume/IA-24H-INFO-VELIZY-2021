@@ -13,6 +13,8 @@ public class Biker {
     private Point position;
     private ArrayList<CommandeLivraison> coffre = new ArrayList<CommandeLivraison>();
 
+    public ArrayList<Point> listePoint = new ArrayList<Point>();
+
     private boolean chercherCommande = false;
     private boolean livrerCommande = false;
 

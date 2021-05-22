@@ -84,7 +84,7 @@ public class IA {
                 ParcoursLargeur.setObjectifs(objectifs);
                 ParcoursLargeur.setObstacles(obstacles);
 
-                cheminASuivre.add(i, ParcoursLargeur.parcoursLargeur(map, coursiers[i].getPosition().x, coursiers[i].getPosition().y));
+                cheminASuivre.add(i, ParcoursLargeur.parcoursLargeur(map, coursiers[i].getPosition().x, coursiers[i].getPosition().y, this, coursiers[i].getId()));
 
                 System.out.println(cheminASuivre.get(i).length);
 
@@ -173,6 +173,7 @@ public class IA {
                 Commande.sendCommand("TAKE|" + coursiers[i].getId() + "|" + commande.getCode());
                 coursiers[i].getCoffre().add(commande);
                 pa--;
+                coursiers[i].listePoint.clear();
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -246,5 +247,23 @@ public class IA {
 
     public Biker[] getCoursiers() {
         return coursiers;
+    }
+
+    public Biker getOtherCoursier(int id){
+        if(coursiers[0].getId() == id){
+            return coursiers[1];
+        }
+        else{
+            return coursiers[0];
+        }
+    }
+
+    public Biker getCoursierById(int id){
+        if(coursiers[0].getId() == id){
+            return coursiers[0];
+        }
+        else{
+            return coursiers[1];
+        }
     }
 }
