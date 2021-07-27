@@ -8,12 +8,40 @@ import java.awt.*;
 @Getter
 @Setter
 public class CommandeLivraison {
-    int code;
+
+    /**
+     * Le code de la commande
+     */
+    private int code;
+
+    /**
+     * La valeur de la commande
+     */
     double valeur;
+
+    /**
+     * La localisation du restaurant qui a préparé la commande
+     */
     Point restaurant;
+
+    /**
+     * La localisation de la maison qui a fait la commande
+     */
     Point maison;
+
+    /**
+     * Le temps restant avant la pénalité
+     */
     int tempsRestant;
+
+    /**
+     * Booléen permettant de savoir si la commande a été prise au restaurant
+     */
     boolean retire = false;
+
+    /**
+     * Booléen permettant de savoir si la commande a été livrée
+     */
     boolean livre = false;
 
     public CommandeLivraison (int code, double valeur, int restauX, int restauY, int maisonX, int maisonY, int tempsRestant) {
@@ -24,59 +52,4 @@ public class CommandeLivraison {
         this.tempsRestant = tempsRestant;
     }
 
-    public int getCode() {
-        return code;
-    }
-
-    public void setCode(int code) {
-        this.code = code;
-    }
-
-    public double getValeur() {
-        return valeur;
-    }
-
-    public void setValeur(double valeur) {
-        this.valeur = valeur;
-    }
-
-    public Point getRestaurant() {
-        return restaurant;
-    }
-
-    public void setRestaurant(Point restaurant) {
-        this.restaurant = restaurant;
-    }
-
-    public Point getMaison() {
-        return maison;
-    }
-
-    public void setMaison(Point maison) {
-        this.maison = maison;
-    }
-
-    public int getTempsRestant() {
-        return tempsRestant;
-    }
-
-    public void setTempsRestant(int tempsRestant) {
-        this.tempsRestant = tempsRestant;
-    }
-
-    public boolean isRetire() {
-        return retire;
-    }
-
-    public void setRetire(boolean retire) {
-        this.retire = retire;
-    }
-
-    public boolean isLivre() {
-        return livre;
-    }
-
-    public void setLivre(boolean livre) {
-        this.livre = livre;
-    }
 }

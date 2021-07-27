@@ -6,7 +6,6 @@ import lombok.Setter;
 import models.Biker;
 import models.CommandeLivraison;
 
-import javax.swing.text.Position;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -26,27 +25,26 @@ public class MessageParseur {
      * (utile pour voir ce qu'a fait un adversaire par exemple, faire des
      * statistiques etc...)
      */
-    List<IA> historiqueIA;
+    private List<IA> historiqueIA;
 
-    IA currentIA;
-
+    private IA currentIA;
 
     public MessageParseur() {
-
         historiqueIA = new ArrayList<>();
         currentIA = new IA(this);
         Biker[] bikers = new Biker[2];
         for (int i = 0; i < 2; i++) {
             bikers[i] = new Biker();
-            bikers[i].setCoffre(new ArrayList<CommandeLivraison>());
+            bikers[i].setCoffre(new ArrayList<>());
         }
         currentIA.setBikers(bikers);
     }
 
-    public String encode() {
-        return historiqueIA.get(historiqueIA.size() - 1).takeDecision();
-    }
 
+    /**
+     * Parsing des bikers
+     * @param bikers
+     */
     public void setBikers(String bikers) {
         String[] result = bikers.split("\\|");
 
@@ -55,12 +53,16 @@ public class MessageParseur {
                 String courant = result[i];
                 String[] coursier = courant.split(";");
 
-                currentIA.getCoursiers()[i-1].setPosition(new Point(toInt(coursier[1]), toInt(coursier[2])));
-                currentIA.getCoursiers()[i-1].setId(toInt(coursier[0]));
+                currentIA.getBikers()[i-1].setPosition(new Point(toInt(coursier[1]), toInt(coursier[2])));
+                currentIA.getBikers()[i-1].setId(toInt(coursier[0]));
             }
         }
     }
 
+    /**
+     * Parsing des commandes
+     * @param comStr
+     */
     public void setCommandes(String comStr) {
         String[] result = comStr.split("\\|");
         CommandeLivraison[] commandes = new CommandeLivraison[result.length - 1];
@@ -77,30 +79,15 @@ public class MessageParseur {
             }
         }
 
-        currentIA.setCommande(commandes);
+        currentIA.setCommandes(commandes);
     }
 
     /**
-     * utile pour les commandes
-     * TAKE
-     * DELIVER
+     * Parsing de la map
+     * @param message
      */
-    public boolean isReturnOK(String chaine) {
-        boolean ret = true;
-
-        String[] resultat = chaine.split("\\|");
-
-        ret = chaine.split("\\|").length == 1;
-
-        return ret;
-    }
-
-    public int getScore(String score) {
-        return toInt(score.split("\\|")[1]);
-    }
-
     public void setMap(String message) {
-        Biker[] coursiers = currentIA.getCoursiers();
+        Biker[] coursiers = currentIA.getBikers();
         ArrayList<CommandeLivraison> commandes;
 
         String[][] map = new String[31][31];
@@ -133,35 +120,8 @@ public class MessageParseur {
         return Double.parseDouble(chaine);
     }
 
-    public String encode(String[] chaine) {
-        String resultat = "";
-
-        for (int i = 0; i < chaine.length - 1; i++) {
-            resultat += chaine[i] + "|";
-        }
-
-        resultat += chaine[chaine.length - 1];
-
-        return resultat;
-    }
-
     public void launchIA(){
         currentIA.start();
     }
 
-    public List<IA> getHistoriqueIA() {
-        return historiqueIA;
-    }
-
-    public void setHistoriqueIA(List<IA> historiqueIA) {
-        this.historiqueIA = historiqueIA;
-    }
-
-    public IA getCurrentIA() {
-        return currentIA;
-    }
-
-    public void setCurrentIA(IA currentIA) {
-        this.currentIA = currentIA;
-    }
 }

@@ -50,7 +50,7 @@ public class SocketClient {
         init();
     }
 
-    /*
+    /**
      * Lors de la connexion pour la première fois, le serveur s'attend à recevoir le nom de l'équipe et renvoie
      * ensuite l'id du client
      */

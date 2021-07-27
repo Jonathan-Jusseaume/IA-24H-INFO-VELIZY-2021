@@ -14,13 +14,20 @@ import java.util.Deque;
 @Getter
 @Setter
 public class ParcoursLargeur {
-    //Tableau des éléments qui bloque le passage
+    /**
+     *     Tableau des éléments qui bloquent le passage
+     */
     private static String[] obstacles = {"E", "H", "S"};
 
-    //Tableau des cases à atteindre
+    /**
+     *     Tableau des cases à atteindre
+     */
     private static String[] objectifs = {"S"};
 
-    //Autoriser les déplacements en diagonale ?
+
+    /**
+     * Permet de savoir si on autorise les déplacements en diagonale
+     */
     private static boolean diagonale = false;
 
     private static int distMin;
@@ -126,7 +133,7 @@ public class ParcoursLargeur {
             }
         }
 
-        if(ia.getCoursierById(idLivreur).isChercherCommande()) {
+        if (ia.getCoursierById(idLivreur).isChercherCommande()) {
             ia.getCoursierById(idLivreur).listePoint.add(objectifProche);
         }
 
@@ -232,27 +239,11 @@ public class ParcoursLargeur {
         return ret;
     }
 
-    public static String[] getObstacles() {
-        return obstacles;
-    }
-
     public static void setObstacles(String[] obstacles) {
         ParcoursLargeur.obstacles = obstacles;
     }
 
-    public static String[] getObjectifs() {
-        return objectifs;
-    }
-
     public static void setObjectifs(String[] objectifs) {
         ParcoursLargeur.objectifs = objectifs;
-    }
-
-    public static boolean isDiagonale() {
-        return diagonale;
-    }
-
-    public static void setDiagonale(boolean diagonale) {
-        ParcoursLargeur.diagonale = diagonale;
     }
 }

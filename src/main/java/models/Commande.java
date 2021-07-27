@@ -14,11 +14,8 @@ public class Commande {
         sock = _sock;
     }
 
-    /*
-     * JOUEUR -> SERVEUR
-     */
 
-    /*
+    /**
      * Envoie la commande est renvoie "YES" si la commande n'a pas eu d'erreur sinon "NO"
      */
     private static String errCommand(String cmd) throws IOException {
@@ -30,7 +27,7 @@ public class Commande {
         return "YES";
     }
 
-    /*
+    /**
      * Execute la commande et renvoie le résultat
      */
     private static String command(String cmd) throws IOException {
@@ -40,7 +37,7 @@ public class Commande {
         return r;
     }
 
-    /*
+    /**
      * SERVEUR -> JOUEUR
      */
     private static String name() throws IOException {
@@ -57,18 +54,18 @@ public class Commande {
         return isCommand("ENDGAME") ? "YES" : "NO";
     }
 
-    /*
+    /**
      * Wrappers
      */
 
-    /*
+    /**
      * Vérifie si la prochaine commande reçu est celle demandée.
      */
     private static boolean isCommand(String command) throws IOException {
         return sock.recv().compareTo(command) == 0;
     }
 
-    /*
+    /**
      * Bloque tant que la commande reçu n'est pas celle attendu
      */
     private static String waitCommand(String command) throws IOException {
@@ -77,7 +74,7 @@ public class Commande {
         return msg;
     }
 
-    /*
+    /**
      * Juste un wrapper de sendCommand pour bien montrer qu'on s'attend à recevoir une commande
      * et non en envoyer une
      */
@@ -85,7 +82,7 @@ public class Commande {
         return sendCommand(command);
     }
 
-    /*
+    /**
      * Envoie une commande vers le serveur si elle existe
      */
     public static String sendCommand(String command) throws Exception {
@@ -95,15 +92,17 @@ public class Commande {
         String res = null;
 
         switch (commandName) {
-            case "MOVE": res = errCommand(command); break;
-            case "GETBIKERS": res = command(command); break;
-            case "TEAMS": res =  command(command); break;
-            case "GETMAP": res =  command(command);  break;
-            case "GETDELIVERIES": res =  command(command); break;
-            case "TAKE": res =  errCommand(command); break;
-            case "DELIVER": res =  errCommand(command); break;
-            case "ENDTURN": res =  command(command); break;
-            case "SCORE": res =  command(command); break;
+            case "MOVE":
+            case "DELIVER":
+            case "TAKE":
+                res = errCommand(command); break;
+            case "GETBIKERS":
+            case "GETMAP":
+            case "TEAMS":
+            case "ENDTURN":
+            case "GETDELIVERIES":
+            case "SCORE":
+                res = command(command); break;
             case "START": res =  start(); break;
             case "NAME": res =  name(); break;
             case "ENDGAME": res =  endGame(); break;
